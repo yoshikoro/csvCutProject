@@ -1,0 +1,22 @@
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2021", // 出力するJavaScriptのバージョン (ES2021はGASで動作します)
+    "module": "CommonJS", // モジュールの形式 (GASではCommonJSが一般的です)
+    "rootDir": "./tscsrc", // TypeScriptソースファイルのルートディレクトリ
+    "outDir": "./dist", // コンパイルされたJavaScriptファイルの出力ディレクトリ
+    "strict": true, // 厳格な型チェックを有効にする
+    "esModuleInterop": true, // CommonJSとES Modulesの互換性を高める
+    "skipLibCheck": true, // 宣言ファイルの型チェックをスキップする
+    "forceConsistentCasingInFileNames": true, // ファイル名の大文字小文字の一貫性を強制する
+    "noEmitOnError": true, // エラーがある場合にJSを出力しない
+    "removeComments": false // コメントを削除しない (trueにすると削除されます)
+  },
+  "include": [
+    "tscsrc/**/*.ts" // コンパイル対象のファイルを指定
+  ],
+  "exclude": [
+    "node_modules", // コンパイル対象から除外するディレクトリ
+    "**/*.spec.ts" // テストファイルなどを除外
+  ]
+}
