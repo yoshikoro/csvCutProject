@@ -2,7 +2,7 @@ const CONFIG_INFO = {
   SHEETNAME: "config",
   DISTFOLDER_ID_RNG: "A2",
   TARGET_SHEETNAME_RNG: "B2",
-  HEADER_RNG: "D2:H2",
+  HEADER_RNG: "D2:I2",
 };
 export function exportSheetToFile() {
   const tsheetName = "AMUCQ";
@@ -154,6 +154,7 @@ export function formatCsvForSheet() {
       return true;
     }
   });
+  //N列でフィルターして一番最終の消費税を足さない小計を求めるKeyはＮ列をキーにする
   const mapData = filter.map((rows) => {
     // A列〜P列相当（QUERYでSelectしていた B, BO, AS, ... AU, AV の16項目）
     const shopCode = rows[RNG_INFO.BUCODE_RNG];
