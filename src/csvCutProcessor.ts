@@ -1,4 +1,67 @@
-function preCodeFilterCut() {
+const CONFIG_INFO = {
+  SHEETNAME: "config",
+  DISTFOLDER_ID_RNG: "A2",
+  TARGET_SHEETNAME_RNG: "B2",
+  HEADER_RNG: "D2:H2",
+};
+export function exportSheetToFile() {
+  const tsheetName = "AMUCQ";
+  const extension = ".txt";
+  const stringFormat = "Shift_JIS";
+  const sp = SpreadsheetApp.getActiveSpreadsheet();
+  const configSh = sp.getSheetByName(CONFIG_INFO.SHEETNAME);
+  const sh = sp.getSheetByName(tsheetName);
+  if (!configSh || !sh) {
+    console.error("シートが見つかりません");
+    return;
+  }
+  const distFolderId = configSh
+    .getRange(CONFIG_INFO.DISTFOLDER_ID_RNG)
+    .getValue();
+  const distFolder = DriveApp.getFolderById(distFolderId);
+  clearnUpFolder(distFolder);
+
+  const allData = sh.getDataRange().getDisplayValues();
+  if (allData.length === 0) {
+    console.log("dataがありませんでした");
+    return;
+  }
+  const blb = cutCsv(allData, stringFormat, extension);
+  DriveApp.createFile(blb).moveTo(distFolder);
+  //ここから単独行を処理
+  const [head, ...rows] = allData;
+  rows.forEach((row) => {
+    const sendData = [head, row];
+    const rowBlob = cutCsv(sendData, stringFormat, extension);
+    DriveApp.createFile(rowBlob).moveTo(distFolder);
+  });
+}
+function cutCsv(
+  data: any[][] | string[][],
+  stringFormat: string,
+  extension: string,
+): GoogleAppsScript.Base.Blob {
+  //ここで整形
+  let csvstring = "";
+  let title = `${data[1][11]}_${data[1][13]}`;
+  let code = "";
+  data.forEach((elements) => {
+    elements.forEach((arr) => {
+      arr = `"${arr}"`;
+    });
+    const joinstring = elements.join("\t");
+    csvstring = `${csvstring}${joinstring}\r\n`; //改行
+  });
+  const blb = Utilities.newBlob(
+    "",
+    MimeType.PLAIN_TEXT,
+    `${title}${extension}`,
+  ).setDataFromString(csvstring, stringFormat);
+  return blb;
+
+  //ここでカット
+}
+export function formatCsvForSheet() {
   const RNG_INFO = {
     BUCODE_RNG: 0,
     TOKUICODE_RNG: 2,
@@ -13,7 +76,8 @@ function preCodeFilterCut() {
   };
   // 列位置の定義 (0から始まるインデックス)
   const NEWSHEET_COL = {
-    LEN: 57,
+    SHEETNAME: "AMUCQ",
+    LEN: 53,
     B: 1,
     BO: 66,
     AS: 44,
@@ -35,10 +99,7 @@ function preCodeFilterCut() {
     O: 14,
     BM: 64,
   };
-  const CONFIG_INFO = {
-    SHEETNAME: "config",
-    TARGET_SHEETNAME_RNG: "B2",
-  };
+
   const TARGET_INFO = {
     AMUC_SHEET: "AMUC",
     ALL_SHOPSHEET_INFO: {
@@ -64,6 +125,7 @@ function preCodeFilterCut() {
     return;
   }
   const tSheetName = configSh.getRange(SHEETNAMERNG).getValue();
+  const header = configSh.getRange(CONFIG_INFO.HEADER_RNG).getValues().flat();
   const genData = amucSh.getDataRange().getDisplayValues();
   const shopMap = new Map<
     string,
@@ -74,12 +136,15 @@ function preCodeFilterCut() {
     .getValues()
     .slice(1)
     .forEach((element) => {
-      shopMap.set(element[TARGET_INFO.ALL_SHOPSHEET_INFO.RNG_INFO.BUCODERNG], {
-        TEL: element[TARGET_INFO.ALL_SHOPSHEET_INFO.RNG_INFO.TELRNG],
-        FAX: element[TARGET_INFO.ALL_SHOPSHEET_INFO.RNG_INFO.FAXRNG],
-        POSTNO: element[TARGET_INFO.ALL_SHOPSHEET_INFO.RNG_INFO.POSTRNG],
-        ADDRESS: element[TARGET_INFO.ALL_SHOPSHEET_INFO.RNG_INFO.ADDRESS],
-      });
+      shopMap.set(
+        String(element[TARGET_INFO.ALL_SHOPSHEET_INFO.RNG_INFO.BUCODERNG]),
+        {
+          TEL: element[TARGET_INFO.ALL_SHOPSHEET_INFO.RNG_INFO.TELRNG],
+          FAX: element[TARGET_INFO.ALL_SHOPSHEET_INFO.RNG_INFO.FAXRNG],
+          POSTNO: element[TARGET_INFO.ALL_SHOPSHEET_INFO.RNG_INFO.POSTRNG],
+          ADDRESS: element[TARGET_INFO.ALL_SHOPSHEET_INFO.RNG_INFO.ADDRESS],
+        },
+      );
     });
   const sh = sp.getSheetByName(tSheetName);
   //明細１をフィルター
@@ -150,13 +215,29 @@ function preCodeFilterCut() {
     newRow[48] = "1"; //１指定？ 明細別の税区分の為明細をいれるようになったら１９の計算式
     newRow[49] = `${rows[NEWSHEET_COL.BM].toString()}.0`;
 
+    const appendData = [...header, ...newRow];
     //電話番号とFAX番号を解決
+    return appendData;
   });
   //
 
-  sp.getSheetByName("AMUCQ").clearContents();
-  sp.getSheetByName("AMUCQ")
-    .getRange(2, 1, filter.length, filter[0].length)
-    .setValues(filter);
-  const data = sh.getDataRange().getDisplayValues();
+  const newSh = sp.getSheetByName(NEWSHEET_COL.SHEETNAME);
+  if (!newSh) {
+    return;
+  }
+  const setRng = newSh.getRange(2, 1, mapData.length, mapData[0].length);
+
+  setRng.clearContent();
+  setRng.clearFormat();
+  setRng.setNumberFormat("@");
+
+  setRng.setValues(mapData);
+}
+function clearnUpFolder(rootFolder: GoogleAppsScript.Drive.Folder) {
+  const dist = rootFolder.getFoldersByName("済み").next();
+  const files = rootFolder.getFiles();
+  while (files.hasNext()) {
+    const file = files.next();
+    file.moveTo(dist);
+  }
 }

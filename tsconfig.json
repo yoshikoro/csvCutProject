@@ -10,7 +10,13 @@
     "skipLibCheck": true, // 宣言ファイルの型チェックをスキップする
     "forceConsistentCasingInFileNames": true, // ファイル名の大文字小文字の一貫性を強制する
     "noEmitOnError": true, // エラーがある場合にJSを出力しない
-    "removeComments": false // コメントを削除しない (trueにすると削除されます)
+    "removeComments": false, // コメントを削除しない (trueにすると削除されます)
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "src/@types/*"
+      ]
+    }
   },
   "include": [
     "tscsrc/**/*.ts" // コンパイル対象のファイルを指定

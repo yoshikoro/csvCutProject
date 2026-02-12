@@ -1,6 +1,3 @@
-export const CONFIGDATA = {
-  CONFIGMESSAGE: "こんにちは",
-};
 /*
  * @description メニュー用
  * @author yoshitaka <sato-yoshitaka@aktio.co.jp>
@@ -9,11 +6,8 @@ export const CONFIGDATA = {
 export function onOpen() {
   const ui = SpreadsheetApp.getUi();
   const menu = ui.createMenu("実行メニュー");
-  menu.addItem("認証", "excuteMain");
-  menu.addItem("実行", "excuteMain");
+  menu.addItem("ファイル取込", "showCsvUploader");
+  menu.addItem("シート整形", "formatCsvForSheet");
+  menu.addItem("ファイル出力", "exportSheetToFile");
   menu.addToUi();
-}
-
-export function getHello(message: string = "hello") {
-  Logger.log(message);
 }

@@ -6,7 +6,7 @@
   "author": "yoshikoro",
   "license": "ISC",
   "dependencies": {
-    "@types/google-apps-script": "^1.0.84"
+    "@types/google-apps-script": "^2.0.8"
   },
   "scripts": {
     "build": "node esbuild.js",
@@ -17,17 +17,17 @@
     "cpstatic": "cp ./src/static/* ./dist/",
     "nodecp": "node -e \"require('fs').cpSync('./appsscript.json','./dist/appsscript.json',{recursive:true})\"",
     "nodecpw": "node -e \"require('fs').cpSync('./src/static/', './dist/', {recursive: true})\"",
-    "cp": "npm run nodecp && npm run node cpw",
+    "cp": "npm run nodecp && npm run nodecpw",
     "adeploy": "npm run cp && npm run build && npm run push",
     "deploy": "npm run build && npm run push",
     "ndeploy": "npm run nbuild && npm run push",
     "clearn": "rm -f ./dist/*"
   },
   "devDependencies": {
-    "@types/node": "^22.7.9",
-    "esbuild": "^0.24.0",
-    "esbuild-gas-plugin": "^0.8.0",
+    "@types/node": "^25.2.3",
+    "esbuild": "^0.27.3",
+    "esbuild-gas-plugin": "^0.10.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.3"
   }
 }

@@ -1,15 +1,9 @@
-import { CONFIGDATA, onOpen, getHello } from "./event";
-(global as any).excuteMain = excuteMain;
-global.onOpen = onOpen;
+import { exportSheetToFile, formatCsvForSheet } from "./csvCutProcessor";
+import { onOpen } from "./event";
+import { dataAdd, showCsvUploader } from "./importFileData";
 
-/**
- * @description main function
- * @author yoshitaka <sato-yoshitaka@aktio.co.jp>
- * @date 03/07/2025
- * @export
- */
-export function excuteMain() {
-  //補完がききます
-  const message = CONFIGDATA.CONFIGMESSAGE;
-  getHello(message);
-}
+global.onOpen = onOpen;
+global.formatCsvForSheet = formatCsvForSheet;
+global.exportSheetToFile = exportSheetToFile;
+global.showCsvUploader = showCsvUploader;
+global.dataAdd = dataAdd;
